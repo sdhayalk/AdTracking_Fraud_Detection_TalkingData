@@ -1,1 +1,3 @@
-# AdTracking_Fraud_Detection_TalkingData
+# TalkingData AdTracking Fraud Detection Challenge
+
+## Aim: To detect fraudulent click traffic for mobile app ads
