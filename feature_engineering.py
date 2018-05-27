@@ -16,7 +16,6 @@ def breakdown_datetime_into_columns(X_train):
 	X_train['hour'] = X_train['click_time'].dt.hour.astype('uint8')
 	X_train['minute'] = X_train['click_time'].dt.minute.astype('uint8')
 	X_train['second'] = X_train['click_time'].dt.second.astype('uint8')
-	print(type(X_train))
 	
 	return X_train
 
@@ -26,3 +25,4 @@ X_train = breakdown_datetime_into_columns(X_train)
 
 # Show the head of the table
 print(X_train.head())
+print(X_train.describe())
