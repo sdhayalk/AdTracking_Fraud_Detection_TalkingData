@@ -19,10 +19,27 @@ def breakdown_datetime_into_columns(X_train):
 	
 	return X_train
 
+
+def convert_features_to_categorical(X, features):
+	pass
+
+
+def engineer_clicks_per_hour_by_same_ip(X_train):
+	pass
+
+
+def engineer_clicks_per_hour_by_same_channel(X_train):
+	pass
+
+
+def engineer_ip_cross_channel(X_train):
+	pass
+
+
 # load subset of the training data
 X_train = pd.read_csv('G:/DL/adtracking_fraud_detection/data/train.csv', nrows=1000000, parse_dates=['click_time'])
 X_train = breakdown_datetime_into_columns(X_train)
 
 # Show the head of the table
 print(X_train.head())
-print(X_train.describe())
+# print(X_train.describe())
