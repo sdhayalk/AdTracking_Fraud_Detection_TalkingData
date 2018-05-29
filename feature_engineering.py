@@ -2,22 +2,26 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def breakdown_datetime_into_columns(X_train):
+''' references:
+	https://www.kaggle.com/graf10a/lightgbm-lb-0-9675
+'''
+
+def breakdown_datetime_into_columns(X):
 	''' this function extracts the day, hour, minute, second from 'click_time' column and appending them as separate columns
 	
 	Arguments:
-		X_train {pandas.core.frame.DataFrame} -- training features dataset
+		X {pandas.core.frame.DataFrame} -- training features dataset
 	
 	Returns:
-		X_train {pandas.core.frame.DataFrame} -- training features with the day, hour, minute, second in separate columns
+		X {pandas.core.frame.DataFrame} -- training features with the day, hour, minute, second in separate columns
 	'''
 
-	X_train['day'] = X_train['click_time'].dt.day.astype('uint8')
-	X_train['hour'] = X_train['click_time'].dt.hour.astype('uint8')
-	X_train['minute'] = X_train['click_time'].dt.minute.astype('uint8')
-	X_train['second'] = X_train['click_time'].dt.second.astype('uint8')
+	X['day'] = X['click_time'].dt.day.astype('uint8')
+	X['hour'] = X['click_time'].dt.hour.astype('uint8')
+	X['minute'] = X['click_time'].dt.minute.astype('uint8')
+	X['second'] = X['click_time'].dt.second.astype('uint8')
 	
-	return X_train
+	return X
 
 def basic_preprocessing(df):
 	df = df.fillna(0)	# referred from: https://stackoverflow.com/questions/13295735/how-can-i-replace-all-the-nan-values-with-zeros-in-a-column-of-a-pandas-datafra?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
@@ -29,26 +33,51 @@ def basic_preprocessing(df):
 	return df
 	
 	
-def convert_features_to_categorical(X, features):
+
+def engineer_clicks_per_hour_by_same_ip(X):
 	pass
 
 
-def engineer_clicks_per_hour_by_same_ip(X_train):
+def engineer_clicks_per_hour_by_same_channel(X):
 	pass
 
 
-def engineer_clicks_per_hour_by_same_channel(X_train):
+def engineer_ip_cross_channel(X):
 	pass
 
 
-def engineer_ip_cross_channel(X_train):
-	pass
+def engineer_num_of_channels_per_ip_per_day_per_hour(X):
+	''' This function computes the number of channels associated with a given IP address and app
+	
+	Arguments:
+		X {pandas.core.frame.DataFrame} -- features dataset
+	
+	Returns:
+		X {pandas.core.frame.DataFrame}
+	'''
+	num_channels = X[['ip','day','hour','channel']]\
+						.groupby(by=['ip','day','hour'])[['channel']]\
+						.count()\
+						.reset_index()\
+						.rename(columns={'channel': 'n_channels'})
+          
+	# Merging the channels data with the main data set
+	X = X.merge(num_channels, on=['ip','day','hour'], how='left')
+	del num_channels
+	return X
 
+# print('Computing the number of channels associated with ')
+# print('a given IP address, app, and os...')
+# n_chans = train[['ip','app', 'os', 'channel']].groupby(by=['ip', 'app', 
+#           'os'])[['channel']].count().reset_index().rename(columns={'channel': 'ip_app_os_count'})
+          
+# print('Merging the channels data with the main data set...')       
+# train = train.merge(n_chans, on=['ip','app', 'os'], how='left')
+# del n_chans
+# gc.collect()
 
-# load subset of the training data
-# X_train = pd.read_csv('G:/DL/adtracking_fraud_detection/data/train.csv', nrows=1000000, parse_dates=['click_time'])
-# X_train = breakdown_datetime_into_columns(X_train)
-
-# Show the head of the table
-# print(X_train.head())
-# print(X_train.describe())
+# print("Adjusting the data types of the new count features... ")
+# train.info()
+# train['n_channels'] = train['n_channels'].astype('uint16')
+# train['ip_app_count'] = train['ip_app_count'].astype('uint16')
+# train['ip_app_os_count'] = train['ip_app_os_count'].astype('uint16')
