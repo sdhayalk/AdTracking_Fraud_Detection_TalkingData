@@ -3,7 +3,7 @@ import pandas as pd
 import lightgbm as lgb
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, roc_auc_score
+from sklearn.metrics import precision_recall_fscore_support, roc_auc_score
 from feature_engineering import breakdown_datetime_into_columns, basic_preprocessing
 
 ''' References:
@@ -28,58 +28,49 @@ class TrainValidation:
 		print(self.y_test.head(), "\n")
 
 
-	
+	def train_validation(self):
+		self.lgb_train = lgb.Dataset(self.X_train, self.y_train)
+		self.lgb_eval = lgb.Dataset(self.X_test, self.y_test, reference=self.lgb_train)
+
+		# specify your configurations as a dict
+		params = {
+		    'task': 'train',
+		    'boosting_type': 'gbdt',
+		    'is_unbalance': 'true',
+		    'objective': 'binary',
+		    'metric': {'auc'},
+		    'num_leaves': 31,
+		    'learning_rate': 0.05,
+		    'feature_fraction': 0.9,
+		    'bagging_fraction': 0.8,
+		    'bagging_freq': 20,
+		    'verbose': 0
+		}
+
+		print('Start training...')
+		self.gbm = lgb.train(params,
+		                self.lgb_train,
+		                num_boost_round=20,
+		                valid_sets=self.lgb_eval,
+		                early_stopping_rounds=5)
+
+		print('Save model...')
+		self.gbm.save_model('model.txt')		# save model to file
+
+		print('Start predicting...')
+		y_pred = self.gbm.predict(self.X_test, num_iteration=self.gbm.best_iteration)
+		
+		# evaluation
+		print('The rmse of prediction is:', precision_recall_fscore_support(self.y_test, y_pred) ** 0.5)
+		print('auc', roc_auc_score(self.y_test, y_pred))
 
 
 
-def simple_demo(df):
-	
-	
-	
-
-	# create dataset for lightgbm
-	lgb_train = lgb.Dataset(X_train, y_train)
-	lgb_eval = lgb.Dataset(X_test, y_test, reference=lgb_train)
-
-	# specify your configurations as a dict
-	params = {
-	    'task': 'train',
-	    'boosting_type': 'gbdt',
-	    'is_unbalance': 'true',
-	    'objective': 'binary',
-	    'metric': {'auc'},
-	    'num_leaves': 31,
-	    'learning_rate': 0.05,
-	    'feature_fraction': 0.9,
-	    'bagging_fraction': 0.8,
-	    'bagging_freq': 20,
-	    'verbose': 0
-	}
-
-	print('Start training...')
-	# train
-	gbm = lgb.train(params,
-	                lgb_train,
-	                num_boost_round=20,
-	                valid_sets=lgb_eval,
-	                early_stopping_rounds=5)
-
-	print('Save model...')
-	# save model to file
-	gbm.save_model('model.txt')
-
-	print('Start predicting...')
-	# predict
-	y_pred = gbm.predict(X_test, num_iteration=gbm.best_iteration)
-	# eval
-	print('The rmse of prediction is:', mean_squared_error(y_test, y_pred) ** 0.5)
-	print('auc', roc_auc_score(y_test, y_pred))
-
-
-df = pd.read_csv('G:/DL/adtracking_fraud_detection/data/train.csv', nrows=1000000, parse_dates=['click_time'])
+df = pd.read_csv('G:/DL/adtracking_fraud_detection/data/train.csv', nrows=1000000, parse_dates=['click_time'], random_state=42)
 df = breakdown_datetime_into_columns(df)
 df = basic_preprocessing(df)
 del df['click_time']
 del df['attributed_time']
 
-simple_demo(df)
+train_validation_instance = TrainValidation(df)
+train_validation_instance.train_validation()
