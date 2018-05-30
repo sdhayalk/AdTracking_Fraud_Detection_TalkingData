@@ -68,6 +68,14 @@ def engineer_num_of_channels_per_ip_per_day_per_hour(X):
 
 
 def engineer_num_of_channels_per_ip_per_app_per_os(X):
+	''' This function computes the number of channels associated with a given ip, os, app
+	
+	Arguments:
+		X {pandas.core.frame.DataFrame} -- features dataset
+	
+	Returns:
+		X {pandas.core.frame.DataFrame}
+	'''
 	num_channels = X[['ip','app', 'os', 'channel']]\
 						.groupby(by=['ip', 'app', 'os'])[['channel']]\
 						.count()\
