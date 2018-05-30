@@ -4,7 +4,7 @@ import lightgbm as lgb
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_recall_fscore_support, roc_auc_score, confusion_matrix
-from feature_engineering import breakdown_datetime_into_columns, basic_preprocessing, engineer_num_of_channels_per_ip_per_day_per_hour
+from feature_engineering import breakdown_datetime_into_columns, basic_preprocessing, engineer_num_of_channels_per_ip_per_day_per_hour, engineer_num_of_channels_per_ip_per_app_per_os, engineer_num_of_channels_per_ip_per_app
 
 ''' References:
 	simple lightgbm example: https://github.com/Microsoft/LightGBM/blob/master/examples/python-guide/simple_example.py
@@ -74,6 +74,8 @@ df = pd.read_csv('G:/DL/adtracking_fraud_detection/data/train.csv', nrows=100000
 df = breakdown_datetime_into_columns(df)
 df = basic_preprocessing(df)
 df = engineer_num_of_channels_per_ip_per_day_per_hour(df)
+df = engineer_num_of_channels_per_ip_per_app_per_os(df)
+df = engineer_num_of_channels_per_ip_per_app(df)
 del df['click_time']
 del df['attributed_time']
 
