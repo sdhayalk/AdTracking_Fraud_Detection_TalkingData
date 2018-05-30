@@ -85,6 +85,28 @@ def engineer_num_of_channels_per_ip_per_app_per_os(X):
 	# Merging the channels data with the main data set
 	X = X.merge(num_channels, on=['ip','app', 'os'], how='left')
 	del num_channels
+	return X
+
+
+def engineer_num_of_channels_per_ip_per_app(X):
+	''' This function computes the number of channels associated with a given ip, app
+	
+	Arguments:
+		X {pandas.core.frame.DataFrame} -- features dataset
+	
+	Returns:
+		X {pandas.core.frame.DataFrame}
+	'''
+	num_channels = X[['ip','app', 'channel']]\
+						.groupby(by=['ip', 'app'])[['channel']]\
+						.count()\
+						.reset_index()\
+						.rename(columns={'channel': 'ip_app_count'})
+
+	# Merging the channels data with the main data set
+	X = X.merge.merge(num_channels, on=['ip','app'], how='left')
+	del num_channels
+	return X
 
 # print("Adjusting the data types of the new count features... ")
 # train.info()
