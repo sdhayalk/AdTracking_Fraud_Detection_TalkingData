@@ -56,7 +56,7 @@ def engineer_num_of_channels_per_ip_per_day_per_hour(X):
 		X {pandas.core.frame.DataFrame}
 	'''
 	num_channels = X[['ip','day','hour','channel']]\
-						.groupby(by=['ip','day','hour'])[['channel']]\
+						.groupby(by=['ip', 'day', 'hour'])[['channel']]\
 						.count()\
 						.reset_index()\
 						.rename(columns={'channel': 'n_channels'})
@@ -66,15 +66,17 @@ def engineer_num_of_channels_per_ip_per_day_per_hour(X):
 	del num_channels
 	return X
 
-# print('Computing the number of channels associated with ')
-# print('a given IP address, app, and os...')
-# n_chans = train[['ip','app', 'os', 'channel']].groupby(by=['ip', 'app', 
-#           'os'])[['channel']].count().reset_index().rename(columns={'channel': 'ip_app_os_count'})
-          
-# print('Merging the channels data with the main data set...')       
-# train = train.merge(n_chans, on=['ip','app', 'os'], how='left')
-# del n_chans
-# gc.collect()
+
+def engineer_num_of_channels_per_ip_per_app_per_os(X):
+	num_channels = X[['ip','app', 'os', 'channel']]\
+						.groupby(by=['ip', 'app', 'os'])[['channel']]\
+						.count()\
+						.reset_index()\
+						.rename(columns={'channel': 'ip_app_os_count'})
+
+	# Merging the channels data with the main data set
+	X = X.merge(num_channels, on=['ip','app', 'os'], how='left')
+	del num_channels
 
 # print("Adjusting the data types of the new count features... ")
 # train.info()
